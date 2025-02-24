@@ -1,0 +1,14 @@
+.env
+env/
+venv/
+ENV/
+.venv/
+
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+.pycache/
+

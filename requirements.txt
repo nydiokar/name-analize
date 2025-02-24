@@ -1,0 +1,7 @@
+numpy>=1.24.0
+inflect>=7.0.0
+textblob>=0.17.1
+nameparser>=1.1.2
+rich>=13.6.0
+requests>=2.31.0
+openai>=1.0.0  # For API calls
