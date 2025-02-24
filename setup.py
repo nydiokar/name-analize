@@ -5,16 +5,36 @@ import webbrowser
 import sys
 import platform
 import os
+import requests
 
 console = Console()
 
-def check_openai_api():
-    """Check if OpenAI API key is configured."""
-    try:
+def check_llm_configuration():
+    """Check LLM configuration."""
+    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    
+    if provider == "openai":
         api_key = os.getenv("OPENAI_API_KEY")
-        return bool(api_key)
-    except:
+        if not api_key:
+            console.print("[yellow]OpenAI API key not found.[/yellow]")
+            console.print("Add to .env file: OPENAI_API_KEY=your-api-key-here")
+            return False
+    elif provider == "ollama":
+        try:
+            response = requests.get("http://localhost:11434/api/tags")
+            if response.status_code != 200:
+                console.print("[yellow]Ollama service not running.[/yellow]")
+                console.print("Start Ollama service before running the tool.")
+                return False
+        except:
+            console.print("[yellow]Ollama service not accessible.[/yellow]")
+            console.print("Make sure Ollama is installed and running.")
+            return False
+    else:
+        console.print(f"[red]Unsupported LLM provider: {provider}[/red]")
         return False
+    
+    return True
 
 def setup_environment():
     """Set up the environment for name analysis tool."""
@@ -34,15 +54,9 @@ def setup_environment():
         console.print(f"[red]Error installing requirements: {str(e)}[/red]")
         return False
     
-    # Check OpenAI API key
-    console.print("\n[cyan]Checking OpenAI API configuration...[/cyan]")
-    if not check_openai_api():
-        console.print("[yellow]OpenAI API key not found.[/yellow]")
-        console.print("\nTo set up OpenAI API:")
-        console.print("1. Get your API key from: [blue]https://platform.openai.com/api-keys[/blue]")
-        console.print("2. Create a .env file in the project root")
-        console.print("3. Add this line to the .env file:")
-        console.print("[green]OPENAI_API_KEY=your-api-key-here[/green]")
+    # Check LLM configuration
+    console.print("\n[cyan]Checking LLM configuration...[/cyan]")
+    if not check_llm_configuration():
         return False
     
     console.print("\n[green]Setup completed successfully![/green]")

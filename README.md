@@ -1,90 +1,112 @@
-# Name Analysis Tool with AI Enhancement
+# Name Analysis Tool
 
-A comprehensive tool for analyzing names through numerology, phonetics, cultural patterns, and AI-powered interpretation using Ollama.
+A comprehensive name analysis tool that combines numerology, phonetics, cultural patterns, and AI-powered interpretation to provide deep insights into names.
 
 ## Features
 
-- Numerological analysis with master numbers and karmic debt detection
-- Cultural pattern recognition (Slavic, Germanic, Celtic, Latin)
-- Phonetic analysis with sound patterns
-- AI-powered natural language interpretation
-- Frequency and vibrational analysis
-- Real-time, local AI processing
+- **AI-Powered Analysis**: Uses OpenAI GPT-3.5 or Ollama for intelligent name interpretation
+- **Numerological Analysis**: Calculates destiny numbers and identifies master numbers
+- **Phonetic Analysis**: Analyzes sound patterns and syllabic structure
+- **Cultural Pattern Recognition**: Identifies cultural roots and patterns
+- **Frequency Analysis**: Analyzes letter distribution patterns
+- **Vibrational Analysis**: Calculates name vibration frequencies
 
-## Installation
+## Setup
 
-1. Install Ollama:
-   - **Windows**: Download from [ollama.ai/download](https://ollama.ai/download)
-   - **macOS/Linux**: `curl https://ollama.ai/install.sh | sh`
-
-2. Clone and set up the project:
+1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/name-analyzer.git
-cd name-analyzer
-python setup.py
+git clone https://github.com/yourusername/name-analize.git
+cd name-analize
 ```
 
-The setup script will:
-- Install Python dependencies
-- Check Ollama installation
-- Guide you through any missing requirements
+2. Install requirements:
+```bash
+pip install -r requirements.txt
+```
+
+3. Create a `.env` file based on `.env.example`:
+```bash
+cp .env.example .env
+```
+
+## Configuration
+
+The tool supports two LLM (Language Model) providers:
+
+### 1. OpenAI (Default)
+- Requires an API key from OpenAI
+- Configure in `.env`:
+```
+LLM_PROVIDER=openai
+OPENAI_API_KEY=your-api-key-here
+```
+
+### 2. Ollama (Local)
+- Requires Ollama installed locally
+- Configure in `.env`:
+```
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=mistral  # or any other model you have installed
+```
+
+To use Ollama:
+1. Install Ollama from https://ollama.ai
+2. Start the Ollama service
+3. Pull your preferred model:
+```bash
+ollama pull mistral
+```
 
 ## Usage
 
-1. Start Ollama service (if not running)
-2. Run the analyzer:
+1. Run the setup script:
+```bash
+python setup.py
+```
+
+2. Run the main script:
 ```bash
 python main.py
 ```
 
-Enter any name when prompted. The tool will provide:
+3. Enter any name when prompted, and the tool will provide:
+- Cultural analysis
 - Numerological significance
-- Cultural pattern analysis
-- Phonetic characteristics
-- AI-generated unique interpretation
-
-## Operating Modes
-
-The tool operates in two modes:
-
-1. **AI-Enhanced Mode (Default)**
-   - Uses Ollama for natural language interpretation
-   - Provides detailed cultural analysis
-   - Generates unique, context-aware insights
-
-2. **Basic Mode (Fallback)**
-   - Uses pattern matching
-   - Works without Ollama
-   - Provides essential analysis
+- Phonetic patterns
+- Frequency distribution
+- Vibrational resonance
+- AI-generated interpretation
 
 ## Requirements
 
 - Python 3.8+
-- Ollama installed and running
-- 4GB RAM minimum
-- Internet connection (for first-time model download)
+- OpenAI API key (if using OpenAI)
+- Ollama installation (if using Ollama)
+- Required packages (see requirements.txt)
 
-## Technical Details
+## Privacy & Security
 
-- Uses Mistral model through Ollama for AI interpretation
-- Combines traditional numerology with modern AI analysis
-- Cultural pattern recognition engine
-- Advanced phonetic analysis system
+- Never commit your `.env` file containing API keys
+- The tool processes names locally except for AI interpretation
+- API calls are made securely using official clients
+- When using Ollama, all processing is done locally on your machine
+
+## Troubleshooting
+
+### OpenAI Issues
+- Verify your API key is correct
+- Ensure you have sufficient API credits
+- Check your internet connection
+
+### Ollama Issues
+- Verify Ollama is installed and running
+- Check if the selected model is downloaded
+- Ensure port 11434 is available
 
 ## Contributing
 
-Contributions welcome! Areas of interest:
-- Additional cultural patterns
-- Enhanced AI prompts
-- New analysis methods
-- Performance improvements
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-## Acknowledgments
-
-- Ollama team for the amazing local LLM runtime
-- Mistral AI for the base model
-- Contributors to the numerology and phonetics modules
+This project is licensed under the MIT License - see the LICENSE file for details.
