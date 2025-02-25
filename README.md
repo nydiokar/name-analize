@@ -54,7 +54,7 @@ To use Ollama:
 2. Start the Ollama service
 3. Pull your preferred model:
 ```bash
-ollama pull mistral
+ollama run mistral
 ```
 
 ## Usage

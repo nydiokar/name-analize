@@ -42,123 +42,76 @@ def get_challenge_meaning(challenge):
     }
     return meanings.get(challenge, "personal growth")
 
-def format_results(name, numerology, phonetics, frequency, vibration=None, interpretation=None):
+def format_results(name, report):
     """Format analysis results for display using rich."""    
-    # Get cultural analysis
-    cultural = CulturalAnalyzer.analyze_cultural_elements(name)
+    # Header with styling
+    console.print(Panel(
+        f"[bold cyan]Analysis Results for:[/bold cyan] [bold white]{name}[/bold white]",
+        style="bold magenta"
+    ))
     
-    # Header
-    console.print(Panel(f"Analysis Results for: {name}", style="bold magenta"))
+    # Technical Analysis Section
+    console.print(Panel(
+        "\n".join([
+            "[bold cyan]Technical Analysis[/bold cyan]",
+            "",
+            f"[yellow]Destiny Number:[/yellow] {report.get('analyses', {}).get('numerology', {}).get('destiny_number', 'N/A')}",
+            f"[yellow]Base Frequency:[/yellow] {report.get('analyses', {}).get('vibration', {}).get('base_frequency', 'N/A')} Hz",
+            f"[yellow]Consonants/Vowels:[/yellow] {report.get('analyses', {}).get('phonetics', {}).get('consonant_count', 'N/A')}/{report.get('analyses', {}).get('phonetics', {}).get('vowel_count', 'N/A')}"
+        ]),
+        title="📊 Metrics",
+        border_style="cyan"
+    ))
     
-    # Core Numbers
-    console.print("\n[bold cyan]Core Numbers[/bold cyan]")
-    console.print(f"Destiny Number: [green]{numerology['destiny_number']}[/green]")
-    
-    if numerology.get('is_master_number'):
-        console.print(f"[bold yellow]Master Number Detected: {numerology['master_number_meaning']}[/bold yellow]")
-    
-    if numerology.get('karmic_debt'):
-        console.print(f"[bold red]Karmic Debt: {numerology['karmic_debt']['number']}[/bold red]")
-    
-    # Cultural Elements
-    if cultural['patterns'] or cultural['dominant_culture']:
-        console.print("\n[bold cyan]Cultural Essence[/bold cyan]")
-        if cultural['dominant_culture']:
-            console.print(f"Primary Heritage: [green]{cultural['dominant_culture'].title()}[/green]")
-        for pattern in cultural['patterns']:
-            if isinstance(pattern['meaning'], tuple):
-                console.print(f"Pattern: [green]{pattern['pattern']}[/green] - {pattern['meaning'][1]}")
-            else:
-                console.print(f"Pattern: [green]{pattern['pattern']}[/green] - {pattern['meaning']}")
-    
-    # Name Structure
-    console.print("\n[bold cyan]Name Structure[/bold cyan]")
-    syllables = phonetics['phonetic_description']['syllable_count']
-    balance = phonetics['phonetic_description']['sound_balance']
-    console.print(f"Composition: [green]{syllables} syllables with {balance}[/green]")
-    
-    if cultural['structure_notes']:
-        for note in cultural['structure_notes']:
-            console.print(f"Pattern: [green]{note}[/green]")
-    
-    # Letter Distribution
-    console.print("\n[bold cyan]Letter Pattern[/bold cyan]")
-    console.print(frequency['visualization'])
-    
-    # Vibration Analysis (if provided)
-    if vibration:
-        console.print("\n[bold cyan]Vibrational Analysis[/bold cyan]")
-        for key, value in vibration.items():
-            console.print(f"{key}: [green]{value}[/green]")
-    
-    # Display interpretation if provided directly
+    # Interpretation Section
+    interpretation = report.get('analyses', {}).get('interpretation', '')
     if interpretation:
-        console.print("\n[bold magenta]Name Interpretation[/bold magenta]")
-        console.print(Panel("\n\n".join(interpretation), style="bold white"))
-    else:
-        # Generate interpretation using existing logic
-        console.print("\n[bold magenta]Name Interpretation[/bold magenta]")
-        try:
-            if USE_LLM:
-                # Prepare analysis data
-                analysis_data = {
-                    'name': name,
-                    'numerology': {
-                        'destiny': numerology['destiny_number'],
-                        'is_master': numerology.get('is_master_number', False),
-                        'master_meaning': numerology.get('master_number_meaning', None),
-                        'karmic_debt': numerology.get('karmic_debt', None)
-                    },
-                    'cultural_roots': cultural['cultural_roots'],
-                    'phonetics': {
-                        'syllables': syllables,
-                        'balance': balance,
-                        'patterns': cultural['structure_notes']
-                    },
-                    'special_meanings': cultural.get('special_meanings', [])
-                }
-                
-                # Generate AI interpretation
-                interpretations = interpreter.generate_interpretation(analysis_data)
-                console.print(Panel("\n\n".join(interpretations), style="bold white"))
-                
+        sections = interpretation.split('\n\n')
+        for section in sections:
+            section = section.strip()
+            if not section:
+                continue
+            
+            if section.lower().startswith('overall impression'):
+                title = "✨ Overall Impression"
+            elif section.lower().startswith('key strengths'):
+                title = "💪 Key Strengths"
+            elif section.lower().startswith('growth areas'):
+                title = "🌱 Growth Areas"
+            elif section.lower().startswith('life path insights'):
+                title = "🌊 Life Path Insights"
+            elif section.lower().startswith('deeper analysis'):
+                title = "🔮 Deeper Analysis"
             else:
-                # Use basic interpretation
-                _print_basic_interpretation(console, numerology, cultural, phonetics)
-                
-        except Exception as e:
-            console.print(Panel(
-                f"[red]Error during AI interpretation:[/red]\n" +
-                f"[yellow]{str(e)}[/yellow]\n\n" +
-                "[white]Falling back to basic analysis...[/white]",
-                title="AI Error"
-            ))
-            _print_basic_interpretation(console, numerology, cultural, phonetics)
-    
-    console.print("\n" + "=" * 50)
+                title = None
+            
+            if title:
+                content = section.split(':', 1)[1].strip() if ':' in section else section
+                console.print(f"\n[bold cyan]{title}[/bold cyan]")
+                if title in ["💪 Key Strengths", "🌱 Growth Areas"]:
+                    for line in content.split('\n'):
+                        if line.strip():
+                            console.print(f"• {line.strip()}")
+                else:
+                    console.print(content)
+            else:
+                console.print(section)
 
 def _print_basic_interpretation(console, numerology, cultural, phonetics):
     """Fallback interpretation when AI is not available."""
-    interpretation = []
+    sections = [
+        ("✨ Overall Impression", f"Your name's destiny number {numerology['destiny_number']} indicates {get_challenge_meaning(numerology['destiny_number'])}"),
+        ("💪 Key Strengths", ["Natural talents based on numerological patterns"]),
+        ("🌱 Growth Areas", ["Areas for personal development"]),
+        ("🌊 Life Path Insights", cultural['structure_notes'][0] if cultural.get('structure_notes') else 'Path insights not available'),
+        ("🔮 Deeper Analysis", cultural['patterns'][0]['meaning'] if cultural.get('patterns') else 'Cultural analysis not available'),
+        ("☀️ Vibrational Insight", "Basic vibrational patterns detected")
+    ]
     
-    # Add core meaning
-    if numerology.get('is_master_number'):
-        interpretation.append(f"Your name carries the Master Number {numerology['destiny_number']}, "
-                           f"suggesting {numerology['master_number_meaning'].lower()}")
-    else:
-        interpretation.append(f"Your name's destiny number {numerology['destiny_number']} "
-                           f"indicates {get_challenge_meaning(numerology['destiny_number'])}")
-    
-    # Add cultural significance if available
-    if cultural['patterns']:
-        pattern = cultural['patterns'][0]
-        if isinstance(pattern['meaning'], tuple):
-            interpretation.append(f"The {pattern['pattern']} pattern suggests {pattern['meaning'][1]}")
+    for title, content in sections:
+        console.print(f"\n[bold cyan]{title}[/bold cyan]")
+        if isinstance(content, list):
+            for item in content:
+                console.print(f"• {item}")
         else:
-            interpretation.append(f"The {pattern['pattern']} pattern suggests {pattern['meaning']}")
-    
-    # Add sound pattern insight
-    if cultural['structure_notes']:
-        interpretation.append(cultural['structure_notes'][0])
-    
-    console.print(Panel("\n\n".join(interpretation), style="bold white"))
+            console.print(content)

@@ -1,11 +1,10 @@
 from rich.console import Console
 from rich.panel import Panel
 import subprocess
-import webbrowser
 import sys
-import platform
 import os
 import requests
+from install import install_dependencies
 
 console = Console()
 
@@ -46,12 +45,8 @@ def setup_environment():
         console.print("[red]Error: Python 3.8 or higher is required[/red]")
         return False
     
-    # Install requirements
-    console.print("\n[cyan]Installing Python requirements...[/cyan]")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-    except subprocess.CalledProcessError as e:
-        console.print(f"[red]Error installing requirements: {str(e)}[/red]")
+    # Install dependencies using the new install script
+    if not install_dependencies():
         return False
     
     # Check LLM configuration
@@ -61,7 +56,7 @@ def setup_environment():
     
     console.print("\n[green]Setup completed successfully![/green]")
     console.print("\nYou can now run the tool with:")
-    console.print("[cyan]python main.py[/cyan]")
+    console.print("[cyan]streamlit run app.py[/cyan]")
     
     return True
 

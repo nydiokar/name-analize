@@ -1,5 +1,6 @@
 import numpy as np
 from collections import defaultdict
+import pronouncing
 
 class VibrationAnalyzer:
     # Base frequencies (Hz) for cultural tuning
@@ -16,12 +17,38 @@ class VibrationAnalyzer:
     
     # Letter resonance patterns based on sound formation
     LETTER_QUALITIES = {
-        'a': {'openness': 0.9, 'power': 0.7, 'frequency_mod': 1.0},
-        'e': {'openness': 0.8, 'power': 0.5, 'frequency_mod': 1.2},
-        'i': {'openness': 0.6, 'power': 0.3, 'frequency_mod': 1.4},
-        'o': {'openness': 0.7, 'power': 0.8, 'frequency_mod': 0.9},
-        'u': {'openness': 0.5, 'power': 0.6, 'frequency_mod': 1.1},
-        'y': {'openness': 0.4, 'power': 0.4, 'frequency_mod': 1.3}
+        'a': {'openness': 0.9, 'power': 0.8, 'frequency_mod': 1.2},
+        'e': {'openness': 0.8, 'power': 0.6, 'frequency_mod': 1.1},
+        'i': {'openness': 0.7, 'power': 0.4, 'frequency_mod': 1.3},
+        'o': {'openness': 0.8, 'power': 0.7, 'frequency_mod': 1.0},
+        'u': {'openness': 0.6, 'power': 0.5, 'frequency_mod': 1.4},
+        'y': {'openness': 0.5, 'power': 0.4, 'frequency_mod': 1.5},
+        # Add more consonants for better variation
+        'r': {'openness': 0.7, 'power': 0.8, 'frequency_mod': 1.1},
+        's': {'openness': 0.6, 'power': 0.7, 'frequency_mod': 1.2},
+        'm': {'openness': 0.8, 'power': 0.6, 'frequency_mod': 0.9},
+        'n': {'openness': 0.7, 'power': 0.5, 'frequency_mod': 1.0}
+    }
+    
+    # Add phonetic frequency mappings
+    PHONETIC_FREQUENCIES = {
+        # Vowels
+        'AA': 850,  # as in "father"
+        'AE': 660,  # as in "cat"
+        'AH': 580,  # as in "but"
+        'AO': 470,  # as in "dog"
+        'EH': 600,  # as in "bed"
+        'IH': 420,  # as in "bit"
+        'IY': 270,  # as in "bee"
+        'UH': 380,  # as in "book"
+        'UW': 310,  # as in "boot"
+        
+        # Consonants
+        'B': 250,   'D': 300,   'G': 280,
+        'K': 450,   'P': 500,   'T': 550,
+        'M': 200,   'N': 220,   'NG': 240,
+        'L': 380,   'R': 420,   'W': 180,
+        'Y': 190,   'S': 800,   'Z': 750
     }
     
     @staticmethod
@@ -62,21 +89,42 @@ class VibrationAnalyzer:
     @staticmethod
     def get_frequency_meaning(freq):
         """Interpret the meaning of a frequency range."""
-        if freq > 800:
-            return "spiritual/transcendent"
-        elif freq > 600:
-            return "intuitive/insightful"
+        if freq > 600:
+            return "highly spiritual/transformative"
+        elif freq > 500:
+            return "intuitive/visionary"
         elif freq > 400:
+            return "communicative/expressive"
+        elif freq > 300:
             return "balanced/harmonious"
+        elif freq > 200:
+            return "practical/structured"
         else:
-            return "grounding/practical"
+            return "grounding/foundational"
     
     @staticmethod
     def analyze_name_vibration(name, base_frequency=432, cultural_weight=1.0):
         """Perform comprehensive vibrational analysis of a name."""
         name = name.lower()
         
-        # Calculate letter frequencies
+        # Try phonetic analysis first
+        try:
+            phones = pronouncing.phones_for_word(name)
+            if phones:
+                phonemes = phones[0].split()
+                phonetic_frequencies = [VibrationAnalyzer.PHONETIC_FREQUENCIES.get(p, base_frequency) 
+                                     for p in phonemes]
+                if phonetic_frequencies:
+                    return VibrationAnalyzer._analyze_frequencies(
+                        phonetic_frequencies, 
+                        base_frequency, 
+                        cultural_weight,
+                        analysis_type='phonetic'
+                    )
+        except Exception:
+            pass  # Fall back to letter-based analysis
+        
+        # Letter-based analysis (existing code)
         frequencies = []
         letter_resonances = {}
         
@@ -89,6 +137,16 @@ class VibrationAnalyzer:
         if not frequencies:
             return None
             
+        return VibrationAnalyzer._analyze_frequencies(
+            frequencies, 
+            base_frequency, 
+            cultural_weight,
+            analysis_type='letter'
+        )
+
+    @staticmethod
+    def _analyze_frequencies(frequencies, base_frequency, cultural_weight, analysis_type='letter'):
+        """Analyze a list of frequencies and return results."""
         # Calculate resonance with cultural weighting
         resonance = VibrationAnalyzer.calculate_resonance(frequencies, cultural_weight)
         
@@ -109,7 +167,20 @@ class VibrationAnalyzer:
         avg_freq = np.mean(frequencies)
         frequency_character = VibrationAnalyzer.get_frequency_meaning(avg_freq)
         
-        return {
+        # Adjust resonance profile thresholds
+        resonance_profile = (
+            'high' if avg_freq > 500 or resonance > 0.6
+            else 'medium' if avg_freq > 300 or resonance > 0.4
+            else 'low'
+        )
+        
+        # Add harmonic ratio calculation from the new implementation
+        harmonic_ratio = 1.0
+        if len(frequencies) >= 2:
+            ratios = [f2/f1 for f1, f2 in zip(frequencies[:-1], frequencies[1:])]
+            harmonic_ratio = sum(ratios) / len(ratios)
+
+        result = {
             "base_frequency": round(avg_freq, 2),
             "resonance_strength": round(resonance, 3),
             "coherence": round(1 - coherence, 3),
@@ -118,5 +189,10 @@ class VibrationAnalyzer:
             "strongest_harmonic": max(harmonic_groups.items(), 
                                    key=lambda x: len(x[1]))[0] if harmonic_groups else None,
             "frequency_character": frequency_character,
-            "cultural_influence": cultural_weight
+            "cultural_influence": cultural_weight,
+            "resonance_profile": resonance_profile,
+            "harmonic_ratio": round(harmonic_ratio, 3),
+            "analysis_type": analysis_type  # Add this to indicate which method was used
         }
+        
+        return result
