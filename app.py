@@ -65,6 +65,29 @@ def display_results(profile):
             font-weight: bold !important;
             margin-bottom: 0.5rem !important;
         }
+        .interpretation-section {
+            background-color: rgba(28, 31, 48, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+            height: 100%;
+        }
+        .interpretation-text {
+            font-size: 1.1rem !important;
+            line-height: 1.6 !important;
+        }
+        .bullet-header {
+            font-size: 1.2rem !important;
+            font-weight: bold !important;
+            color: #6C63FF !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .bullet-content {
+            font-size: 1.1rem !important;
+            margin-left: 1.5rem !important;
+            margin-bottom: 1rem !important;
+            line-height: 1.6 !important;
+        }
         </style>
     """, unsafe_allow_html=True)
     
@@ -100,38 +123,76 @@ def display_results(profile):
         try:
             # Split the text into sections
             sections = interpretation.split('\n\n')
-            current_section = None
             
-            for section in sections:
-                section = section.strip()
-                if not section:
-                    continue
-                
-                # Check for section headers
-                if 'Overall Impression:' in section:
-                    st.markdown("### ✨ Overall Impression")
-                    content = section.split('Overall Impression:', 1)[1].strip()
-                    st.write(content)
-                elif 'Key Strengths:' in section:
-                    st.markdown("### 💪 Key Strengths")
-                    content = section.split('Key Strengths:', 1)[1].strip()
-                    for line in content.split('\n'):
-                        if line.strip() and line.strip()[0].isdigit():
-                            st.write("• " + line.split('.', 1)[1].strip())
-                elif 'Growth Areas:' in section:
-                    st.markdown("### 🌱 Growth Areas")
-                    content = section.split('Growth Areas:', 1)[1].strip()
-                    for line in content.split('\n'):
-                        if line.strip() and line.strip()[0].isdigit():
-                            st.write("• " + line.split('.', 1)[1].strip())
-                elif 'Life Path Insights:' in section:
-                    st.markdown("### 🌊 Life Path Insights")
-                    content = section.split('Life Path Insights:', 1)[1].strip()
-                    st.write(content)
-                elif 'Deeper Analysis:' in section:
-                    st.markdown("### 🔮 Deeper Analysis")
-                    content = section.split('Deeper Analysis:', 1)[1].strip()
-                    st.write(content)
+            # Create two rows with three columns each
+            row1_col1, row1_col2, row1_col3 = st.columns(3)
+            row2_col1, row2_col2, row2_col3 = st.columns(3)
+            
+            # Overall Impression
+            with row1_col1:
+                st.markdown('<div class="interpretation-section">', unsafe_allow_html=True)
+                st.markdown("### ✨ Overall Impression")
+                for section in sections:
+                    if 'Overall Impression:' in section:
+                        content = section.split('Overall Impression:', 1)[1].strip()
+                        st.markdown(f'<div class="interpretation-text">{content}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Key Strengths
+            with row1_col2:
+                st.markdown('<div class="interpretation-section">', unsafe_allow_html=True)
+                st.markdown("### 💪 Key Strengths")
+                for section in sections:
+                    if 'Key Strengths:' in section:
+                        content = section.split('Key Strengths:', 1)[1].strip()
+                        for line in content.split('\n'):
+                            if line.strip() and line.strip()[0].isdigit():
+                                bullet_text = line.split('.', 1)[1].strip()
+                                if ':' in bullet_text:
+                                    header, desc = bullet_text.split(':', 1)
+                                    st.markdown(f'<div class="bullet-header">{header}:</div>', unsafe_allow_html=True)
+                                    st.markdown(f'<div class="bullet-content">{desc}</div>', unsafe_allow_html=True)
+                                else:
+                                    st.markdown(f'<div class="bullet-content">• {bullet_text}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Growth Areas
+            with row1_col3:
+                st.markdown('<div class="interpretation-section">', unsafe_allow_html=True)
+                st.markdown("### 🌱 Growth Areas")
+                for section in sections:
+                    if 'Growth Areas:' in section:
+                        content = section.split('Growth Areas:', 1)[1].strip()
+                        for line in content.split('\n'):
+                            if line.strip() and line.strip()[0].isdigit():
+                                bullet_text = line.split('.', 1)[1].strip()
+                                if ':' in bullet_text:
+                                    header, desc = bullet_text.split(':', 1)
+                                    st.markdown(f'<div class="bullet-header">{header}:</div>', unsafe_allow_html=True)
+                                    st.markdown(f'<div class="bullet-content">{desc}</div>', unsafe_allow_html=True)
+                                else:
+                                    st.markdown(f'<div class="bullet-content">• {bullet_text}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Life Path Insights
+            with row2_col1:
+                st.markdown('<div class="interpretation-section">', unsafe_allow_html=True)
+                st.markdown("### 🌊 Life Path Insights")
+                for section in sections:
+                    if 'Life Path Insights:' in section:
+                        content = section.split('Life Path Insights:', 1)[1].strip()
+                        st.markdown(f'<div class="interpretation-text">{content}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Deeper Analysis
+            with row2_col2:
+                st.markdown('<div class="interpretation-section">', unsafe_allow_html=True)
+                st.markdown("### 🔮 Deeper Analysis")
+                for section in sections:
+                    if 'Deeper Analysis:' in section:
+                        content = section.split('Deeper Analysis:', 1)[1].strip()
+                        st.markdown(f'<div class="interpretation-text">{content}</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error parsing interpretation: {str(e)}")
             st.write(interpretation)  # Fallback: display raw text
